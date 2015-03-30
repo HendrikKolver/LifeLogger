@@ -11,12 +11,6 @@
 
 	<!-- SCROLLS -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
-	<style>
-		html 					{ overflow-y:scroll; }
-		body 					{ padding-top:50px; }
-		#todo-list 				{ margin-bottom:30px; }
-		#todo-form 	 			{ margin-bottom:50px; }
-	</style>
 
 	<!-- SPELLS -->
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script><!-- load angular -->
@@ -26,43 +20,55 @@
 <body ng-controller="mainController">
 	<div class="container">
 
-		<div class="jumbotron text-center">
-			<h2>Activities for today <span class="label label-info">{{ todos.length }}</span></h2>
-			<h2>Total time spent today <span class="label label-info">{{ totalTime("today") }}</span></h2>
+		<div class="text-center">
+			<h2>Total time spent today: <span class="label label-success">{{ totalTime("today") }}</span> hours</h2>
 		</div>
-
-		<div id="todo-list" class="row">
-			<div class="col-sm-4 col-sm-offset-4">
-
-				<div class="checkbox" ng-repeat="todo in todos">
-					<label>
-						<button type="button" class="btn btn-default" aria-label="Left Align" ng-click="deleteTodo(todo._id)">
-							<span class="glyphicon glyphicon-trash" aria-hidden="true">Delete</span>
-						</button> 
-						{{ todo.activityName }} : {{ todo.activityTime }}
-					</label>
-				</div>
-
-			</div>
-		</div>
-
-
+		<br/>
 		<div id="todo-form" class="row">
 			<div class="col-sm-8 col-sm-offset-2 text-center">
 				<form>
-					<div class="form-group">
-
-
-						<input type="text" class="form-control input-lg text-center" placeholder="Activity name" ng-model="formData.activityName">
-						<input type="text" class="form-control input-lg text-center" placeholder="Time spent on activity" ng-model="formData.activityTime">
+					<div class="form-group row ">
+						<input type="text" class="input-lg " placeholder="Activity" ng-model="formData.activityName">
+						
+						<input type="number" class="input-lg" placeholder="Time" ng-model="formData.activityTime">
+						
+						<button type="submit" class="btn btn-success btn-md " ng-click="createTodo()">Add</button>
 					</div>
 
-					<button type="submit" class="btn btn-primary btn-lg" ng-click="createTodo()">Add</button>
+					
 				</form>
 			</div>
 		</div>
 
+		<div id="todo-list" class="row">
+			<div class="col-sm-6 col-sm-offset-3">
 
+			<table class="table table-striped">
+				<tr>
+					<th>Activity</th>
+					<th>Time</th>
+					<th>Actions</th>
+				</tr>
+				<tr ng-repeat="todo in todos">
+					<td ng-if="editId !== todo._id">{{todo.activityName}}</td>
+					<td ng-if="editId === todo._id"><input class="form-control" type="text"  ng-model="todo.activityName"/></td>
+					<td ng-if="editId !== todo._id">{{todo.activityTime}}</td>
+					<td ng-if="editId === todo._id"><input class="form-control" type="number"  ng-model="todo.activityTime"/></td>
+					<td>
+						<span class="glyphicon glyphicon-pencil btn btn-default" ng-if="editId !== todo._id" ng-click="editActivity(todo._id)" aria-hidden="true"></span>
+						<span class="glyphicon glyphicon-ok btn btn-default label-success" ng-if="editId === todo._id" ng-click="completeEdit(todo)" aria-hidden="true"></span>
+						<span class="glyphicon glyphicon-remove btn btn-default" ng-if="editId !== todo._id" ng-click="deleteTodo(todo._id)" aria-hidden="true"></span>
+						<span class="glyphicon glyphicon-remove btn btn-default label-danger" ng-if="editId === todo._id" ng-click="cancelEdit()" aria-hidden="true"></span>
+
+					</td>
+				</tr>
+				<tr ng-if="!todos || todos.length <1">
+					<th colspan="3">No activities to show for today. Add the activities that you completed</th>
+				</tr>
+			</table>
+
+			</div>
+		</div>
 	</div>
 
 </body>

@@ -1,16 +1,7 @@
 var scotchTodo = angular.module('scotchTodo', []);
 
-function mainController($scope, $http) {
+function mainController($scope, $http, $window) {
 	$scope.formData = {};
-
-	// when landing on the page, get all todos and show them
-	$http.get('/api/todos')
-		.success(function(data) {
-			$scope.todos = data;
-		})
-		.error(function(data) {
-			console.log('Error: ' + data);
-		});
 
 	// when submitting the add form, send the text to the node API
 	$scope.createTodo = function() {
@@ -24,7 +15,6 @@ function mainController($scope, $http) {
 			.success(function(data) {
 				$scope.formData = {}; // clear the form so our user is ready to enter another
 				$scope.todos = data;
-				console.log(data);
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
@@ -33,6 +23,11 @@ function mainController($scope, $http) {
 
 	// delete a todo after checking it
 	$scope.deleteTodo = function(id) {
+		var confirm = $window.confirm("Are you sure you wish to delete this activity?");
+	    if (confirm != true) {
+	        return;
+	    }
+
 		$http.delete('/api/todos/' + id)
 			.success(function(data) {
 				$scope.todos = data;
@@ -42,38 +37,35 @@ function mainController($scope, $http) {
 			});
 	};
 
+	$scope.editActivity = function(id){
+		$scope.editId = id;
+	}
+
+	$scope.completeEdit = function(todo){
+		$http.post('/api/todos/update/'+todo._id, todo)
+		.success(function(data) {
+				$scope.editId = null;
+				$scope.todos = data;
+			})
+			.error(function(data) {
+				console.log('Error: ' + data);
+			});
+		
+	}
+
+	$scope.cancelEdit = function(id){
+		$scope.editId = null;
+	}
+
 	$scope.totalTime = function(timeframe){
-		var today = $scope.getToday();
-		switch(timeframe){
-			case "today":{
-				var totalTime = 0;
-				angular.forEach($scope.todos, function(value,key){
-					if(today.day === value.activityDay && today.month === value.activityMonth && today.year === value.activityYear)
-						totalTime += value.activityTime;
-				})
-				return totalTime;
-				break;
-			}
-			case "Month":{
-				var totalTime = 0;
-				angular.forEach($scope.todos, function(value,key){
-					if(today.month === value.activityMonth && today.year === value.activityYear)
-						totalTime += value.activityTime;
-				})
-				return totalTime;
-				break;
-			}
-			case "Year":{
-				var totalTime = 0;
-				angular.forEach($scope.todos, function(value,key){
-					if(today.year === value.activityYear)
-						totalTime += value.activityTime;
-				})
-				return totalTime;
-				break;
-			}
-		}
+
+		var totalTime = 0;
+		angular.forEach($scope.todos, function(value,key){
+			totalTime += value.activityTime;
+		})
+		return totalTime;
 	};
+
 
 	$scope.getToday = function(){
 		var today = new Date();
@@ -86,5 +78,14 @@ function mainController($scope, $http) {
 
 		return dateObject;
 	}
+
+	$scope.today = $scope.getToday();
+	$http.get('/api/todos/'+$scope.today.year+'/'+$scope.today.month+'/'+$scope.today.day)
+		.success(function(data) {
+			$scope.todos = data;
+		})
+		.error(function(data) {
+			console.log('Error: ' + data);
+		});
 
 }
