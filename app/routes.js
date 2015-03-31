@@ -1,36 +1,36 @@
-var Todo = require('./models/todo');
+var Activity = require('./models/activity');
 
 module.exports = function(app) {
 
-	// get all todos
-	app.get('/api/todos', function(req, res) {
+	// get all activities
+	app.get('/api/activities', function(req, res) {
 
-		Todo.find(function(err, todos) {
+		Activity.find(function(err, activities) {
 			if (err)
 				res.send(err)
 
-			res.json(todos);
+			res.json(activities);
 		});
 	});
 
-	app.get('/api/todos/:year/:month/:day', function(req, res) {
+	app.get('/api/activities/:year/:month/:day', function(req, res) {
 		
-			Todo
+			Activity
 			.find()
 			.where('activityYear').equals(req.params.year)
 			.where('activityMonth').equals(req.params.month)
 			.where('activityDay').equals(req.params.day)
-			.exec(function(err, todos) {
+			.exec(function(err, activities) {
 
 				if (err)
 					res.send(err)
 
-				res.json(todos); 
+				res.json(activities); 
 			});
 
 	});
 
-	app.get('/api/todos/month', function(req, res) {
+	app.get('/api/activities/month', function(req, res) {
 		var today = getToday();
 		
 		console.log(today);
@@ -43,119 +43,119 @@ module.exports = function(app) {
 		}
 		console.log(today);
 
-		Todo.find()
+		Activity.find()
 		.where('activityMonth').gte(today.month).lte()
-		.exec(function(err, todos) {
+		.exec(function(err, activities) {
 
 		
 			if (err)
 				res.send(err)
 
-			res.json(todos);
+			res.json(activities);
 		});
 	});
 
-	app.get('/api/todos/year', function(req, res) {
-		// use mongoose to get all todos in the database
-		Todo.find(function(err, todos) {
+	app.get('/api/activities/year', function(req, res) {
+		// use mongoose to get all activities in the database
+		Activity.find(function(err, activities) {
 
 			// if there is an error retrieving, send the error. nothing after res.send(err) will execute
 			if (err)
 				res.send(err)
 
-			res.json(todos); // return all todos in JSON format
+			res.json(activities); // return all activities in JSON format
 		});
 	});
 
-	app.get('/api/todos/week', function(req, res) {
-		// use mongoose to get all todos in the database
-		Todo.find(function(err, todos) {
+	app.get('/api/activities/week', function(req, res) {
+		// use mongoose to get all activities in the database
+		Activity.find(function(err, activities) {
 
 			// if there is an error retrieving, send the error. nothing after res.send(err) will execute
 			if (err)
 				res.send(err)
 
-			res.json(todos); // return all todos in JSON format
+			res.json(activities); // return all activities in JSON format
 		});
 	});
 
 
 
-	// create todo and send back all todos after creation
-	app.post('/api/todos', function(req, res) {
+	// create activity and send back all activities after creation
+	app.post('/api/activities', function(req, res) {
 
-		// create a todo, information comes from AJAX request from Angular
-		Todo.create({
+		// create a activity, information comes from AJAX request from Angular
+		Activity.create({
 			activityName : req.body.activityName,
 			activityTime: req.body.activityTime,
 			activityDay: req.body.activityDay,
 			activityMonth: req.body.activityMonth,
 			activityYear: req.body.activityYear
-		}, function(err, todo) {
+		}, function(err, activity) {
 			if (err)
 				res.send(err);
 
-			// return all todos for the date that was added
-			Todo
+			// return all activities for the date that was added
+			Activity
 			.find()
 			.where('activityYear').equals(req.body.activityYear)
 			.where('activityMonth').equals(req.body.activityMonth)
 			.where('activityDay').equals(req.body.activityDay)
-			.exec(function(err, todos) {
+			.exec(function(err, activities) {
 				if (err)
 					res.send(err)
 
-				res.json(todos); 
+				res.json(activities); 
 			});
 
 		});
 
 	});
 
-	// delete a todo
-	app.delete('/api/todos/:todo_id', function(req, res) {
-		Todo.remove({
-			_id : req.params.todo_id
-		}, function(err, todo) {
+	// delete a activity
+	app.delete('/api/activities/:activity_id', function(req, res) {
+		Activity.remove({
+			_id : req.params.activity_id
+		}, function(err, activity) {
 			if (err)
 				res.send(err);
 
 			var today = getToday();
-			Todo
+			Activity
 			.find()
 			.where('activityYear').equals(today.year)
 			.where('activityMonth').equals(today.month)
 			.where('activityDay').equals(today.day)
-			.exec(function(err, todos) {
+			.exec(function(err, activities) {
 				if (err)
 					res.send(err)
 
-				res.json(todos); 
+				res.json(activities); 
 			});
 		});
 	});
 
-	app.post('/api/todos/update/:todo_id', function(req, res){
+	app.post('/api/activities/update/:activity_id', function(req, res){
 		var query = { 
-			_id : req.params.todo_id
+			_id : req.params.activity_id
 		}
 
 		var options = { multi: true };
 
-		Todo.update(query, { activityName: req.body.activityName, activityTime: req.body.activityTime }, options, function(err, numAffected) {
+		Activity.update(query, { activityName: req.body.activityName, activityTime: req.body.activityTime }, options, function(err, numAffected) {
 				if (err)
 					res.send(err)
 
-				Todo
+				Activity
 				.find()
 				.where('activityYear').equals(req.body.activityYear)
 				.where('activityMonth').equals(req.body.activityMonth)
 				.where('activityDay').equals(req.body.activityDay)
-				.exec(function(err, todos) {
+				.exec(function(err, activities) {
 					if (err)
 						res.send(err)
 
-					res.json(todos); 
+					res.json(activities); 
 				});
 		});
 	
