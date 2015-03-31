@@ -1,0 +1,28 @@
+<div class="container">
+	<div class="text-center">
+		<h2>Total time spent over the last 30 days: <span class="label label-success">{{ totalTime() }}</span> hours</h2>
+		<h3>Activities for the last 30 days</h3>
+	</div>
+	<br/>
+
+	<div id="activity-list" class="row">
+		<div class="col-sm-6 col-sm-offset-3">
+
+		<table class="table table-striped">
+			<tr>
+				<th>Activity</th>
+				<th>Total Time</th>
+			</tr>
+			<tr ng-repeat="activity in activities">
+				<td >{{activity.activityName}}</td>
+
+				<td >{{activity.activityTime}}</td>
+			</tr>
+			<tr ng-if="!activities || activities.length <1">
+				<th colspan="3">No activities to show for today. Add the activities that you completed</th>
+			</tr>
+		</table>
+
+		</div>
+	</div>
+</div>

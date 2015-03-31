@@ -1,6 +1,24 @@
-var lifeLogger = angular.module('lifeLogger', []);
+var lifeLogger = angular.module('lifeLogger', ['ngRoute']);
 
-function mainController($scope, $http, $window) {
+lifeLogger.config(['$routeProvider',
+  function($routeProvider) {
+    $routeProvider.
+      when('/addActivities', {
+        templateUrl: 'views/addActivities.html',
+        controller: 'addActivityCtrl'
+      }).
+      when('/viewMonth', {
+        templateUrl: 'views/viewMonth.html',
+        controller: 'viewMonthCtrl'
+      }).
+      otherwise({
+        redirectTo: '/addActivities'
+      });
+  }]);
+
+lifeLogger.controller('addActivityCtrl',['$scope', '$http', '$window',
+	function($scope, $http, $window) {
+		//console.log("here");
 	$scope.formData = {};
 
 	// when submitting the add form, send the text to the node API
@@ -10,6 +28,7 @@ function mainController($scope, $http, $window) {
 			$scope.formData.activityDay = today.day;
 			$scope.formData.activityMonth = today.month;
 			$scope.formData.activityYear = today.year;
+			$scope.formData.activityTimestamp = new Date().getTime();
 		}
 		$http.post('/api/activities', $scope.formData)
 			.success(function(data) {
@@ -88,4 +107,30 @@ function mainController($scope, $http, $window) {
 			console.log('Error: ' + data);
 		});
 
-}
+}]);
+
+lifeLogger.controller('viewMonthCtrl',['$scope', '$http',
+	function($scope, $http) {
+		//console.log("here");
+	$scope.formData = {};
+
+	$scope.totalTime = function(timeframe){
+
+		var totalTime = 0;
+		angular.forEach($scope.activities, function(value,key){
+			totalTime += value.activityTime;
+		})
+		return totalTime;
+	};
+
+	$http.get('/api/activities/month')
+		.success(function(data) {
+			$scope.activities = data;
+		})
+		.error(function(data) {
+			console.log('Error: ' + data);
+		});
+
+}]);
+
+

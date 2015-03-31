@@ -1,7 +1,7 @@
 {
-  "name"         : "node-todo",
+  "name"         : "LifeLogger",
   "version"      : "0.0.1",
-  "description"  : "Simple todo application.",
+  "description"  : "Life logging application.",
   "main"         : "server.js",
   "author"       : "HendrikKolver",
   "dependencies" : {

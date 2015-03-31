@@ -5,5 +5,6 @@ module.exports = mongoose.model('Activity', {
 	activityTime: Number,
 	activityDay: Number,
 	activityMonth: Number,
-	activityYear: Number
+	activityYear: Number,
+	activityTimestamp: Number
 });

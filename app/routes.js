@@ -31,66 +31,51 @@ module.exports = function(app) {
 	});
 
 	app.get('/api/activities/month', function(req, res) {
-		var today = getToday();
 		
-		console.log(today);
-		if(today.month == 1){
-			today.year--;
-			today.month = 12;
-		}
-		else{
-			today.month--;
-		}
-		console.log(today);
-
+		var timestamp = new Date().getTime();
+console.log(timestamp);
 		Activity.find()
-		.where('activityMonth').gte(today.month).lte()
+		.where('activityTimestamp').gte(timestamp-2592000).lte(timestamp)
 		.exec(function(err, activities) {
 
+			var acumulatedActivities = [];
+
+			activities.forEach(function(activity) {
+				var found = false;
+				for(var i =0; i<acumulatedActivities.length;i++){
+					if(acumulatedActivities[i].activityName === activity.activityName){
+			    		found = true;
+			    		acumulatedActivities[i].activityTime += activity.activityTime;
+			    		break;
+			    	}
+				}
+
+				if(!found){
+					acumulatedActivities.push(activity);
+				}
+			});
+
 		
 			if (err)
 				res.send(err)
 
-			res.json(activities);
+			res.json(acumulatedActivities);
 		});
 	});
-
-	app.get('/api/activities/year', function(req, res) {
-		// use mongoose to get all activities in the database
-		Activity.find(function(err, activities) {
-
-			// if there is an error retrieving, send the error. nothing after res.send(err) will execute
-			if (err)
-				res.send(err)
-
-			res.json(activities); // return all activities in JSON format
-		});
-	});
-
-	app.get('/api/activities/week', function(req, res) {
-		// use mongoose to get all activities in the database
-		Activity.find(function(err, activities) {
-
-			// if there is an error retrieving, send the error. nothing after res.send(err) will execute
-			if (err)
-				res.send(err)
-
-			res.json(activities); // return all activities in JSON format
-		});
-	});
-
 
 
 	// create activity and send back all activities after creation
 	app.post('/api/activities', function(req, res) {
 
 		// create a activity, information comes from AJAX request from Angular
+		console.log(req.body.activityTimestamp);
 		Activity.create({
 			activityName : req.body.activityName,
 			activityTime: req.body.activityTime,
 			activityDay: req.body.activityDay,
 			activityMonth: req.body.activityMonth,
-			activityYear: req.body.activityYear
+			activityYear: req.body.activityYear,
+			activityTimestamp: req.body.activityTimestamp
 		}, function(err, activity) {
 			if (err)
 				res.send(err);
