@@ -33,7 +33,6 @@ module.exports = function(app) {
 	app.get('/api/activities/month', function(req, res) {
 		
 		var timestamp = new Date().getTime();
-		console.log(timestamp);
 		Activity.find()
 		.where('activityTimestamp').gte(timestamp-2678400000)
 		.exec(function(err, activities) {
