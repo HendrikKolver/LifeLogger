@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="text-center">
-		<h2>Total time spent over the last 30 days: <span class="label label-success">{{ totalTime() }}</span> hours</h2>
-		<h3>Activities for the last 30 days</h3>
+		<h2>Statistics for the last 30 days</h2>
+		<h3>Total time spent: <span class="label label-success">{{ totalTime() }}</span> hours</h2>
 	</div>
 	<br/>
 
@@ -13,7 +13,7 @@
 				<th>Activity</th>
 				<th>Total Time</th>
 			</tr>
-			<tr ng-repeat="activity in activities">
+			<tr ng-repeat="activity in top5Activities">
 				<td >{{activity.activityName}}</td>
 
 				<td >{{activity.activityTime}}</td>

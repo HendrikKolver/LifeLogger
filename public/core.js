@@ -11,17 +11,27 @@ lifeLogger.config(['$routeProvider',
         templateUrl: 'views/viewMonth.html',
         controller: 'viewMonthCtrl'
       }).
+      when('/statistics', {
+        templateUrl: 'views/viewStatistics.html',
+        controller: 'viewStatisticsCtrl'
+      }).
       otherwise({
         redirectTo: '/addActivities'
       });
   }]);
 
+
+
 lifeLogger.controller('addActivityCtrl',['$scope', '$http', '$window',
 	function($scope, $http, $window) {
 		//console.log("here");
 	$scope.formData = {};
+	$scope.focusInput=true;
 
-	// when submitting the add form, send the text to the node API
+	$(".nav").find(".active").removeClass("active");
+   	$('.addActivityNav').addClass("active");
+
+
 	$scope.createActivity = function() {
 		if(!$scope.formData.activityDay){
 			var today = $scope.getToday();
@@ -32,7 +42,8 @@ lifeLogger.controller('addActivityCtrl',['$scope', '$http', '$window',
 		}
 		$http.post('/api/activities', $scope.formData)
 			.success(function(data) {
-				$scope.formData = {}; // clear the form so our user is ready to enter another
+				$scope.focusInput=true;
+				$scope.formData = {};
 				$scope.activities = data;
 			})
 			.error(function(data) {
@@ -109,9 +120,11 @@ lifeLogger.controller('addActivityCtrl',['$scope', '$http', '$window',
 
 }]);
 
-lifeLogger.controller('viewMonthCtrl',['$scope', '$http',
-	function($scope, $http) {
-		//console.log("here");
+lifeLogger.controller('viewMonthCtrl',['$scope', '$http',function($scope, $http) {
+
+	$(".nav").find(".active").removeClass("active");
+   	$('.monthViewNav').addClass("active");
+
 	$scope.formData = {};
 
 	$scope.totalTime = function(timeframe){
@@ -132,5 +145,79 @@ lifeLogger.controller('viewMonthCtrl',['$scope', '$http',
 		});
 
 }]);
+
+lifeLogger.controller('viewStatisticsCtrl',['$scope', '$http',function($scope, $http) {
+
+	$(".nav").find(".active").removeClass("active");
+   	$('.statisticsNav').addClass("active");
+
+	$scope.formData = {};
+
+	$scope.totalTime = function(timeframe){
+
+		var totalTime = 0;
+
+		angular.forEach($scope.activities, function(value,key){
+			totalTime += value.activityTime;
+		})
+		return totalTime;
+	};
+
+	$scope.top5Activities = function(){
+		var top5Activities = [];
+		var allActivities = $scope.activities.slice(0);
+
+		if(allActivities.length <=5){
+			top5Activities = allActivities;
+			return top5Activities;
+		}
+
+
+		while(top5Activities.length < 5){
+			console.log($scope.activities.length);
+			var maxTime = 0;
+			var maxItemName = 0;
+			var currentTopActivity;
+			angular.forEach(allActivities, function(value,key){
+				if(value.activityTime > maxTime){
+					currentTopActivity = value;
+					maxTime = value.activityTime;
+				}
+			});
+
+			top5Activities.push(currentTopActivity);
+  
+			var index = allActivities.indexOf(currentTopActivity);
+			allActivities.splice(index, 1);
+		}
+
+		return top5Activities;
+		
+	}
+
+	$http.get('/api/activities/month')
+		.success(function(data) {
+			$scope.activities = data;
+			$scope.top5Activities = $scope.top5Activities();
+		})
+		.error(function(data) {
+			console.log('Error: ' + data);
+		});
+
+}]);
+
+lifeLogger.directive('focusMe', function($timeout) {
+  return {
+    scope: { trigger: '=focusMe' },
+    link: function(scope, element) {
+      scope.$watch('trigger', function(value) {
+        if(value === true) { 
+            element[0].focus();
+            scope.trigger = false;
+        }
+      });
+    }
+  };
+});
 
 
